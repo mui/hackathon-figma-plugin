@@ -41,7 +41,7 @@ const App = () => {
   return (
     <React.Fragment>
       <CssBaseline />
-      <Input type="file" ref={inputRef} onChange={handleChange} />
+      <Input type="file" ref={inputRef} onChange={handleChange} accept=".json" />
       <Stack m={2} spacing={2}>
         <Button variant="contained" onClick={handleUpload}>
           Upload theme
@@ -54,4 +54,4 @@ const App = () => {
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('react-page'));
+ReactDOM.render(<App />, document.getElementById('mui-theme'));

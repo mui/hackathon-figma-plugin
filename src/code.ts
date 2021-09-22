@@ -1,11 +1,10 @@
-import {decomposeColor, Theme, ThemeOptions} from '@mui/material/styles';
+import {decomposeColor, Theme, ThemeOptions } from '@mui/material/styles';
 import {capitalize} from '@mui/material/utils';
-
-const isFunction = (func: any): func is Function => typeof func === 'function';
+import { setTypography } from './typography';
 
 figma.showUI(__html__);
 
-figma.ui.onmessage = (msg) => {
+figma.ui.onmessage = async (msg) => {
   const { type, payload } = msg;
 
   if (type === 'IMPORT_THEME') {
@@ -19,14 +18,16 @@ figma.ui.onmessage = (msg) => {
     // Do the same for text styles
     const theme = payload as Theme
 
-    setPalette(theme.palette);
-    setTypography(theme.typography);
+    await Promise.all([
+      setPalette(theme.palette),
+      setTypography(theme.typography)
+    ]);
   }
 
   // figma.closePlugin();
 };
 
-const setPalette = (palette: Theme['palette'] | undefined) => {
+const setPalette = async (palette: Theme['palette'] | undefined) => {
   if (!palette) {
     return
   }
@@ -41,16 +42,6 @@ const setPalette = (palette: Theme['palette'] | undefined) => {
   })
 }
 
-const setTypography = (typography: ThemeOptions['typography'] | undefined) => {
-  if (!typography) {
-    return;
-  }
-
-  if (isFunction(typography)) {
-    throw new Error('Function typography is not yet supported');
-  }
-};
-
 const findOrCreatePaintStyle = (name: string) => {
   const allStyles = figma.getLocalPaintStyles();
   let style = allStyles.find((style) => style.name === name);
@@ -60,17 +51,6 @@ const findOrCreatePaintStyle = (name: string) => {
   }
   return style;
 };
-
-const findOrCreateTextStyle = (name: string) => {
-  const allStyles = figma.getLocalTextStyles();
-  let style = allStyles.find((style) => style.name === name);
-  if (!style) {
-    style = figma.createTextStyle();
-    style.name = name;
-  }
-  return style;
-};
-
 
 const readPalette = (palette: Theme['palette']) => {
   const result: Array<{ figmaName: string; value: string }> = [];
