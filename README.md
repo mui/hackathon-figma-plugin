@@ -3,13 +3,14 @@
 ### Required
 
 - [ ] able to import a [partial theme](https://mui.com/customization/default-theme/#main-content) (json) and change palette & typography.
-  - [ ] palette @siriwatknp 
+  - [x] palette @siriwatknp 
   - [ ] typography @flaviendelangle
 - [ ] able to export colors & typography from figma into json file.
 
 ### Features
 
 - [ ] allow replace or override option when importing theme to figma @flaviendelangle
+- [ ] able to calculate runtime color like `primary: contained hover`
 
 ## Development
 
