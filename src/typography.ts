@@ -82,17 +82,3 @@ export const setTypography = async (typography: ThemeOptions['typography'] | und
             figmaStyle.fontName = value.font
         })
 }
-
-setTypography({
-    "h1": {
-        "fontFamily": "Roboto",
-        "fontWeight": 300,
-        "fontSize": "6rem",
-        "lineHeight": 1.167,
-        "letterSpacing": "-0.01562em"
-    },
-    "h2": {
-        "fontSize": 20,
-        "fontWeight": 600
-    }
-})
