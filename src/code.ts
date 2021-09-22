@@ -1,20 +1,26 @@
+import { decomposeColor } from '@mui/material/styles';
+
 figma.showUI(__html__);
 
 figma.ui.onmessage = (msg) => {
-  if (msg.type === "create-rectangles") {
-    const nodes = [];
+  const { type, payload } = msg;
 
-    for (let i = 0; i < msg.count; i++) {
-      const rect = figma.createRectangle();
-      rect.x = i * 150;
-      rect.fills = [{ type: "SOLID", color: { r: 1, g: 0.5, b: 0 } }];
-      figma.currentPage.appendChild(rect);
-      nodes.push(rect);
-    }
-
-    figma.currentPage.selection = nodes;
-    figma.viewport.scrollAndZoomIntoView(nodes);
+  if (type === 'IMPORT_THEME') {
+    const style = findOrCreateStyle('Primary/Main');
+    const paletteColor = decomposeColor(payload.palette.primary.main);
+    const [red, green, blue] = paletteColor.values;
+    style.paints = [{ type: 'SOLID', color: { r: red / 255, g: green / 255, b: blue / 255 } }];
   }
 
   figma.closePlugin();
+};
+
+const findOrCreateStyle = (name: string) => {
+  const allStyles = figma.getLocalPaintStyles();
+  let style = allStyles.find((style) => style.name === name);
+  if (!style) {
+    style = figma.createPaintStyle();
+    style.name = name;
+  }
+  return style;
 };
