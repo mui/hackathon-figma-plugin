@@ -43,7 +43,7 @@ const App = () => {
       <Input type="file" ref={inputRef} onChange={handleChange} />
       <Stack m={2} spacing={2}>
         <Button variant="contained" onClick={handleUpload}>
-          Upload theme
+          Upload theme test tes
         </Button>
         <Button variant="contained" color="secondary" onClick={handleExport}>
           Export theme
