@@ -10,6 +10,7 @@ figma.ui.onmessage = (msg) => {
   if (type === 'IMPORT_THEME') {
     // 1. turn theme into array, so that we can iterate and map the styles in figma
     // ex. { palette: { primary: { main: '#ff5252' }}} => [{ figmaName: 'palette/primary/main', value: '#ff5252' }]
+    const styles = readTheme(payload)
 
     // 2. get localPaintStyles https://www.figma.com/plugin-docs/api/figma/#getlocalpaintstyles
 
@@ -71,6 +72,19 @@ const findOrCreateTextStyle = (name: string) => {
 const readTheme = (theme: Theme) => {
   const result: Array<{ figmaName: string; value: string | number }> = [];
 
-  Object.entries(theme).forEach(([key, value]) => {});
+  function iterateDeepObject(object, parentKeys = []) {
+    Object.entries(object).forEach(([key, value]) => {
+      if (typeof value === 'string' || typeof value === 'number') {
+        result.push({ figmaName: [...parentKeys, key].join('/'), value })
+      }
+      if (typeof value !== null && typeof value === 'object') {
+        iterateDeepObject(value, [...parentKeys, key])
+      }
+    });
+  }
+
+  iterateDeepObject(theme);
+
+  return result;
 };
 
