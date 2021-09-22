@@ -1,9 +1,15 @@
 {
   "typography": {
-    "fontSize": 14,
-    "fontWeightLight": 300,
-    "fontWeightRegular": 400,
-    "fontWeightMedium": 500,
-    "fontWeightBold": 700
+    "h1": {
+      "fontFamily": "Roboto",
+      "fontWeight": 300,
+      "fontSize": "6rem",
+      "lineHeight": 1.167,
+      "letterSpacing": "-0.01562em"
+    },
+    "h2": {
+      "fontSize": 20,
+      "fontWeight": 400
+    }
   }
 }
