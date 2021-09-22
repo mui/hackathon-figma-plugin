@@ -28,6 +28,7 @@ const App = () => {
     reader.onerror = () => console.log('file reading has failed');
     reader.onload = () => {
       const json = JSON.parse(reader.result as string);
+      console.log('json', JSON.stringify(json, null, 2));
       parent.postMessage({ pluginMessage: { type: 'IMPORT_THEME', payload: json } }, '*');
     };
     reader.readAsBinaryString(files[0]);
