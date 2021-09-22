@@ -4,6 +4,12 @@
       "main": "#1976d2",
       "light": "#42a5f5",
       "dark": "#1565c0"
-    }
+    },
+    "text": {
+      "primary": "rgba(0, 0, 0, 0.87)",
+      "secondary": "rgba(0, 0, 0, 0.6)",
+      "disabled": "rgba(0, 0, 0, 0.38)"
+    },
+    "divider": "rgba(0, 0, 0, 0.12)"
   }
 }
