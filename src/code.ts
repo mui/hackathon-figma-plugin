@@ -1,4 +1,4 @@
-import { decomposeColor } from '@mui/material/styles';
+import { decomposeColor, Theme } from '@mui/material/styles';
 
 figma.showUI(__html__);
 
@@ -32,4 +32,10 @@ const findOrCreateStyle = (name: string) => {
     style.name = name;
   }
   return style;
+};
+
+const readTheme = (theme: Theme) => {
+  const result: Array<{ figmaName: string; value: string | number }> = [];
+
+  Object.entries(theme).forEach(([key, value]) => {});
 };
