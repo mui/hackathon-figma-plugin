@@ -1,5 +1,6 @@
-import { decomposeColor, Theme, ThemeOptions } from '@mui/material/styles';
+import { Theme } from '@mui/material/styles';
 import { capitalize } from '@mui/material/utils';
+import { importPaletteColor } from './import';
 import { setTypography } from './typography';
 
 figma.showUI(__html__);
@@ -18,37 +19,21 @@ figma.ui.onmessage = async (msg) => {
     // Do the same for text styles
     const theme = payload as Theme;
 
-    await Promise.all([setPalette(theme.palette), setTypography(theme.typography)]);
+    const promises = [setTypography(theme.typography)];
+
+    Object.entries(theme.palette).forEach(([key, value]) => {
+      // TODO add user defined type guard
+      if (typeof value === 'object' && value.main) {
+        importPaletteColor(key, value, theme);
+      }
+    });
+
+    await Promise.all(promises);
+
+    figma.notify('✅ Your custom MUI theme was imported successfully.');
   }
 
   // figma.closePlugin();
-};
-
-const setPalette = async (palette: Theme['palette'] | undefined) => {
-  if (!palette) {
-    return;
-  }
-
-  const flattenPalettes = readPalette(palette);
-
-  flattenPalettes.forEach((palette) => {
-    const style = findOrCreatePaintStyle(palette.figmaName);
-    const paletteColor = decomposeColor(palette.value);
-    const [red, green, blue, opacity = 1] = paletteColor.values;
-    style.paints = [
-      { type: 'SOLID', color: { r: red / 255, g: green / 255, b: blue / 255 }, opacity },
-    ];
-  });
-};
-
-const findOrCreatePaintStyle = (name: string) => {
-  const allStyles = figma.getLocalPaintStyles();
-  let style = allStyles.find((style) => style.name === name);
-  if (!style) {
-    style = figma.createPaintStyle();
-    style.name = name;
-  }
-  return style;
 };
 
 const readPalette = (palette: Theme['palette']) => {

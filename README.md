@@ -6,6 +6,8 @@
   - [ ] palette @siriwatknp
   - [ ] typography @flaviendelangle
 - [ ] able to export colors & typography from figma into json file.
+- [ ] import auxiliary color groups (e.g. action, text, background).
+- [ ] add "Export" button in https://mui.com/customization/color/#playground
 
 ### Features
 

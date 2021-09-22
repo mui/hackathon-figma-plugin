@@ -10,6 +10,9 @@
       "secondary": "rgba(0, 0, 0, 0.6)",
       "disabled": "rgba(0, 0, 0, 0.38)"
     },
+    "action": {
+      "hoverOpacity": 0.04
+    },
     "divider": "rgba(0, 0, 0, 0.12)"
   }
 }
