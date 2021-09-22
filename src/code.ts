@@ -1,5 +1,5 @@
-import {decomposeColor, Theme, ThemeOptions } from '@mui/material/styles';
-import {capitalize} from '@mui/material/utils';
+import { decomposeColor, Theme, ThemeOptions } from '@mui/material/styles';
+import { capitalize } from '@mui/material/utils';
 import { setTypography } from './typography';
 
 figma.showUI(__html__);
@@ -16,12 +16,9 @@ figma.ui.onmessage = async (msg) => {
     // 3. for each paint style in figma, find the color from (1) and apply the new color
 
     // Do the same for text styles
-    const theme = payload as Theme
+    const theme = payload as Theme;
 
-    await Promise.all([
-      setPalette(theme.palette),
-      setTypography(theme.typography)
-    ]);
+    await Promise.all([setPalette(theme.palette), setTypography(theme.typography)]);
   }
 
   // figma.closePlugin();
@@ -29,18 +26,20 @@ figma.ui.onmessage = async (msg) => {
 
 const setPalette = async (palette: Theme['palette'] | undefined) => {
   if (!palette) {
-    return
+    return;
   }
 
-  const flattenPalettes = readPalette(palette)
+  const flattenPalettes = readPalette(palette);
 
-  flattenPalettes.forEach(palette => {
+  flattenPalettes.forEach((palette) => {
     const style = findOrCreatePaintStyle(palette.figmaName);
     const paletteColor = decomposeColor(palette.value);
     const [red, green, blue, opacity = 1] = paletteColor.values;
-    style.paints = [{ type: 'SOLID', color: { r: red / 255, g: green / 255, b: blue / 255 }, opacity }];
-  })
-}
+    style.paints = [
+      { type: 'SOLID', color: { r: red / 255, g: green / 255, b: blue / 255 }, opacity },
+    ];
+  });
+};
 
 const findOrCreatePaintStyle = (name: string) => {
   const allStyles = figma.getLocalPaintStyles();
@@ -58,10 +57,10 @@ const readPalette = (palette: Theme['palette']) => {
   function iterateDeepObject(object, parentKeys = []) {
     Object.entries(object).forEach(([key, value]) => {
       if (typeof value === 'string') {
-        result.push({ figmaName: [...parentKeys, capitalize(key)].join('/'), value })
+        result.push({ figmaName: [...parentKeys, capitalize(key)].join('/'), value });
       }
       if (typeof value !== null && typeof value === 'object') {
-        iterateDeepObject(value, [...parentKeys, capitalize(key)])
+        iterateDeepObject(value, [...parentKeys, capitalize(key)]);
       }
     });
   }

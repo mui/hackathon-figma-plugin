@@ -3,7 +3,7 @@
 ### Required
 
 - [ ] able to import a [partial theme](https://mui.com/customization/default-theme/#main-content) (json) and change palette & typography.
-  - [ ] palette @siriwatknp 
+  - [ ] palette @siriwatknp
   - [ ] typography @flaviendelangle
 - [ ] able to export colors & typography from figma into json file.
 
@@ -20,5 +20,3 @@
 - run `yarn dev`
 - open the plugin in Figma
 - try changing code in `src/ui.tsx`
-
-
