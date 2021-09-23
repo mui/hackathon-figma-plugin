@@ -10,6 +10,28 @@ const Input = styled('input')`
 `;
 
 const App = () => {
+  React.useEffect(() => {
+    const handleMessage = (event) => {
+      if (event?.data?.pluginMessage?.id === 'MUI') {
+        const { value } = event.data.pluginMessage;
+
+        const dataStr = JSON.stringify(value, null, 2);
+        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
+        const exportFileDefaultName = 'data.json';
+
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, []);
+
   const inputRef = React.useRef<HTMLInputElement>();
 
   const handleUpload = () => {
@@ -34,7 +56,7 @@ const App = () => {
   };
 
   const handleExport = () => {
-    alert('Not implemented yet.');
+    parent.postMessage({ pluginMessage: { type: 'EXPORT_THEME' } }, '*');
   };
 
   return (

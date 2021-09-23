@@ -19,5 +19,10 @@ figma.ui.onmessage = async (msg) => {
     figma.notify('✅ Your custom MUI theme was imported successfully.');
   }
 
+  if (type === 'EXPORT_THEME') {
+    // TODO: replace the value with figma palette & typography
+    figma.ui.postMessage({ id: 'MUI', value: { palette: { primary: { main: '#ff5252' } } } });
+  }
+
   // figma.closePlugin();
 };

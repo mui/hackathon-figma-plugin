@@ -30,7 +30,7 @@ const createPaintStyleWithColor = (names: string[], color: string) => {
   }
 };
 
-export const importPalette = async (importedPalette: Theme['palette']) => {
+export const importPalette = (importedPalette: Theme['palette']) => {
   const resolvedTheme = createTheme({ palette: importedPalette });
   Object.entries(importedPalette).forEach(([name, value]) => {
     if (SUPPORTED_KEYS.indexOf(name) !== -1) {
@@ -62,6 +62,24 @@ export const importPalette = async (importedPalette: Theme['palette']) => {
       }
 
       // TODO create styles for Alert/Content and Alert/Background
+    }
+  });
+};
+
+export const exportPalette = () => {
+  const paintStyles = figma.getLocalPaintStyles();
+  const palette = {};
+  paintStyles.forEach((paint) => {
+    let keys = paint.name.split('/').slice(0, 2); // pick only 2 levels
+    if (SUPPORTED_KEYS.indexOf(keys[0]) !== -1) {
+      keys.forEach((keyLevel, index) => {
+        const key = keyLevel.toLowerCase();
+        if (!palette[key]) {
+          palette[key] = {};
+        }
+        if (index === keys.length - 1) {
+        }
+      });
     }
   });
 };
