@@ -1,4 +1,18 @@
+import { capitalize } from '@mui/material/utils';
 import { ThemeOptions, createTheme } from '@mui/material/styles';
+
+export interface FontStyle
+  extends Required<{
+    fontFamily: React.CSSProperties['fontFamily'];
+    fontSize: number;
+    fontWeightLight: React.CSSProperties['fontWeight'];
+    fontWeightRegular: React.CSSProperties['fontWeight'];
+    fontWeightMedium: React.CSSProperties['fontWeight'];
+    fontWeightBold: React.CSSProperties['fontWeight'];
+    letterSpacing: string;
+    fontWeight: string | number;
+    htmlFontSize: number;
+  }> {}
 
 const EXCLUDED_TYPOGRAPHY_KEYS = [
   'htmlFontSize',
@@ -60,6 +74,34 @@ const convertCSSLetterSpacing = (letterSpacing: string): LetterSpacing => {
   );
 };
 
+const WEIGHT_MAPPING = {
+  100: 'Thin',
+  200: 'ExtraLight',
+  300: 'Light',
+  400: 'Regular',
+  500: 'Medium',
+  600: 'SemiBold',
+  700: 'Bold',
+  800: 'ExtraBold',
+  900: 'Black',
+};
+
+const TYPOGRAPHY = [
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'subtitle1',
+  'subtitle2',
+  'body1',
+  'body2',
+  'button',
+  'caption',
+  'overline',
+];
+
 export const setTypography = async (typography: ThemeOptions['typography'] | undefined) => {
   if (!typography) {
     return;
@@ -69,26 +111,44 @@ export const setTypography = async (typography: ThemeOptions['typography'] | und
     throw new Error('Function typography is not yet supported');
   }
 
+  // TODO Extract the font to load from the theme
+  await Promise.all([
+    figma.loadFontAsync({ family: typography.fontFamily || 'Roboto', style: 'Light' }),
+    figma.loadFontAsync({ family: typography.fontFamily || 'Roboto', style: 'Regular' }),
+    figma.loadFontAsync({ family: typography.fontFamily || 'Roboto', style: 'Medium' }),
+    figma.loadFontAsync({ family: typography.fontFamily || 'Roboto', style: 'Bold' }),
+  ]);
+
   const figmaStyles = figma.getLocalTextStyles();
 
-  // TODO Extract the font to load from the theme
-  await figma.loadFontAsync({ family: 'Roboto', style: 'Regular' });
-
-  Object.entries(typography as any)
-    .filter((el) => !EXCLUDED_TYPOGRAPHY_KEYS.includes(el[0]))
-    .forEach(([key, inputValue]) => {
-      const name = `typography/${key}`;
+  Object.entries(typography as any).forEach(([key, inputValue]: [string, FontStyle]) => {
+    if (TYPOGRAPHY.indexOf(key) !== -1) {
+      const name = `Typography/${capitalize(key)}`;
 
       let figmaStyle = figmaStyles.find((style) => style.name === name);
-      if (!figmaStyle) {
-        figmaStyle = figma.createTextStyle();
-        figmaStyle.name = name;
+      if (figmaStyle) {
+        // figmaStyle = figma.createTextStyle();
+        const font = { ...typography, ...inputValue };
+
+        // fontFamily need to come first, otherwise font size does not have effect.
+        if (font.fontFamily) {
+          figmaStyle.fontName = {
+            family: font.fontFamily,
+            style: font.fontWeight
+              ? (typeof font.fontWeight === 'number'
+                  ? WEIGHT_MAPPING[font.fontWeight]
+                  : font.fontWeight) || 'Regular'
+              : figmaStyle.fontName.style,
+          };
+        }
+
+        if (font.fontSize) {
+          figmaStyle.fontSize = convertCSSSizeToPixel(font.fontSize);
+        }
+        if (font.letterSpacing) {
+          figmaStyle.letterSpacing = convertCSSLetterSpacing(font.letterSpacing);
+        }
       }
-
-      const value: any = { ...(defaultTheme.typography[key] as any), ...(inputValue as any) };
-
-      figmaStyle.fontSize = convertCSSSizeToPixel(value.fontSize);
-      figmaStyle.letterSpacing = convertCSSLetterSpacing(value.letterSpacing);
-      figmaStyle.fontName = value.font;
-    });
+    }
+  });
 };

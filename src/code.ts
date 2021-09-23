@@ -10,9 +10,9 @@ figma.ui.onmessage = async (msg) => {
   if (type === 'IMPORT_THEME') {
     const theme = payload as Theme;
 
-    const promises = [setTypography(theme.typography)];
-
     importPalette(theme.palette);
+
+    const promises = [setTypography(theme.typography)];
 
     await Promise.all(promises);
 
