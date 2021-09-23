@@ -1,5 +1,5 @@
 import { Theme } from '@mui/material/styles';
-import { importPalette } from './palette';
+import { importPalette, exportPalette } from './palette';
 import { setTypography } from './typography';
 
 figma.showUI(__html__);
@@ -21,7 +21,8 @@ figma.ui.onmessage = async (msg) => {
 
   if (type === 'EXPORT_THEME') {
     // TODO: replace the value with figma palette & typography
-    figma.ui.postMessage({ id: 'MUI', value: { palette: { primary: { main: '#ff5252' } } } });
+    const palette = exportPalette();
+    figma.ui.postMessage({ id: 'MUI', value: { palette } });
   }
 
   // figma.closePlugin();

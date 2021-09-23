@@ -66,20 +66,43 @@ export const importPalette = (importedPalette: Theme['palette']) => {
   });
 };
 
+function assignValueDeep(target, keys, value) {
+  let temp = target;
+  keys.forEach((k, index) => {
+    if (index === keys.length - 1 && value) {
+      temp[k] = value;
+    } else {
+      if (!temp[k]) {
+        temp[k] = {};
+      }
+      temp = temp[k];
+    }
+  });
+}
+
+function getPaintColor(paintStyle: Paint | undefined) {
+  if (paintStyle) {
+    if (paintStyle.type === 'SOLID') {
+      const { color, opacity } = paintStyle;
+      // rgb color is in 0-1 scale
+      return `rgba(${Math.floor(color.r * 255)}, ${Math.floor(color.g * 255)}, ${Math.floor(
+        color.b * 255,
+      )}, ${opacity < 1 && opacity > 0 ? opacity.toFixed(2) : opacity})`;
+    }
+  }
+  return undefined;
+}
+
 export const exportPalette = () => {
   const paintStyles = figma.getLocalPaintStyles();
   const palette = {};
   paintStyles.forEach((paint) => {
-    let keys = paint.name.split('/').slice(0, 2); // pick only 2 levels
-    if (SUPPORTED_KEYS.indexOf(keys[0]) !== -1) {
-      keys.forEach((keyLevel, index) => {
-        const key = keyLevel.toLowerCase();
-        if (!palette[key]) {
-          palette[key] = {};
-        }
-        if (index === keys.length - 1) {
-        }
-      });
+    let keys = paint.name.split('/').map((k) => k.toLowerCase()); // pick only 2 levels
+
+    if (SUPPORTED_KEYS.indexOf(keys[0]) !== -1 && keys.length <= 2) {
+      assignValueDeep(palette, keys, getPaintColor(paint.paints[0]));
     }
   });
+
+  return palette;
 };
