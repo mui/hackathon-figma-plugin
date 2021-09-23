@@ -152,3 +152,7 @@ export const setTypography = async (typography: ThemeOptions['typography'] | und
     }
   });
 };
+
+export const getTypography = () => {
+  return {};
+};
