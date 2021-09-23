@@ -38,9 +38,11 @@ export const importPalette = (importedPalette: Theme['palette']) => {
         // eg. divider
         createPaintStyleWithColor([capitalize(name)], value);
       } else {
-        Object.entries(value).forEach(([field, color]: [string, string]) => {
+        Object.entries(value).forEach(([field, color]: [string, string | number]) => {
           const colorName = field === 'contrastText' ? 'contrast' : field;
-          createPaintStyleWithColor([capitalize(name), capitalize(colorName)], color);
+          if (typeof color === 'string') {
+            createPaintStyleWithColor([capitalize(name), capitalize(colorName)], color);
+          }
         });
 
         if (PALETTES.indexOf(name) !== -1) {
