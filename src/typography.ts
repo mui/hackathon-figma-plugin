@@ -1,5 +1,6 @@
 import { capitalize } from '@mui/material/utils';
 import { ThemeOptions, createTheme } from '@mui/material/styles';
+import {TypographyOptions} from "@mui/material/styles/createTypography";
 
 export interface FontStyle
   extends Required<{
@@ -14,20 +15,7 @@ export interface FontStyle
     htmlFontSize: number;
   }> {}
 
-const EXCLUDED_TYPOGRAPHY_KEYS = [
-  'htmlFontSize',
-  'pxToRem',
-  'fontFamily',
-  'fontSize',
-  'fontWeightLight',
-  'fontWeightRegular',
-  'fontWeightMedium',
-  'fontWeightBold',
-];
-
 const isFunction = (func: any): func is Function => typeof func === 'function';
-
-const defaultTheme = createTheme();
 
 const convertCSSSizeToPixel = (fontSize: string | number): number => {
   if (typeof fontSize === 'number') {
@@ -153,6 +141,41 @@ export const setTypography = async (typography: ThemeOptions['typography'] | und
   });
 };
 
-export const getTypography = () => {
-  return {};
+export const getTypography = (): TypographyOptions => {
+  const figmaStyles = figma.getLocalTextStyles();
+
+  const exportedStyles = TYPOGRAPHY.map((key) => ({
+    key,
+    value: figmaStyles.find((style) => style.name === `Typography/${capitalize(key)}`),
+  }))
+    .filter((style): style is { key: string; value: TextStyle } => !!style.value)
+    .map(({ value, key }) => {
+      const exportedStyle: any = {};
+
+      if (value.letterSpacing != null) {
+        if (value.letterSpacing.unit === 'PIXELS') {
+          exportedStyle.letterSpacing = `${value.letterSpacing.value}px`;
+        } else {
+          exportedStyle.letterSpacing = `${value.letterSpacing.value}%`;
+        }
+      }
+
+      if (value.fontSize != null) {
+        exportedStyle.fontSize = `${value.fontSize}px`;
+      }
+
+      if (value.fontName != null) {
+        const matchingWeight = Object.entries(WEIGHT_MAPPING).find(
+          (weight) => weight[1] === value.fontName.style,
+        );
+        if (matchingWeight != null) {
+          exportedStyle.fontWeight = Number(matchingWeight[0]);
+        }
+        exportedStyle.fontFamily = value.fontName.family;
+      }
+
+      return [key, exportedStyle];
+    });
+
+  return Object.fromEntries(exportedStyles) as TypographyOptions;
 };
