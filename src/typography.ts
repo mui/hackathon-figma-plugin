@@ -1,5 +1,6 @@
 import { capitalize } from '@mui/material/utils';
 import { ThemeOptions, createTheme } from '@mui/material/styles';
+import {TypographyOptions} from "@mui/material/styles/createTypography";
 
 export interface FontStyle
   extends Required<{
@@ -140,7 +141,7 @@ export const setTypography = async (typography: ThemeOptions['typography'] | und
   });
 };
 
-export const getTypography = () => {
+export const getTypography = (): TypographyOptions => {
   const figmaStyles = figma.getLocalTextStyles();
 
   const exportedStyles = TYPOGRAPHY.map((key) => ({
@@ -176,5 +177,5 @@ export const getTypography = () => {
       return [key, exportedStyle];
     });
 
-  return Object.fromEntries(exportedStyles);
+  return Object.fromEntries(exportedStyles) as TypographyOptions;
 };
