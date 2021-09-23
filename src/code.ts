@@ -28,5 +28,5 @@ figma.ui.onmessage = async (msg) => {
     figma.ui.postMessage({ id: 'MUI', value: theme });
   }
 
-  // figma.closePlugin();
+  figma.closePlugin();
 };
