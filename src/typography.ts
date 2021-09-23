@@ -1,6 +1,6 @@
 import { capitalize } from '@mui/material/utils';
 import { ThemeOptions, createTheme } from '@mui/material/styles';
-import {TypographyOptions} from "@mui/material/styles/createTypography";
+import { TypographyOptions } from '@mui/material/styles/createTypography';
 
 export interface FontStyle
   extends Required<{
@@ -90,6 +90,14 @@ const TYPOGRAPHY = [
   'overline',
 ];
 
+const getFontStyle = (fontWeight: string | number): string => {
+  if (typeof fontWeight === 'number') {
+    return WEIGHT_MAPPING[fontWeight];
+  }
+
+  return fontWeight || 'Regular';
+};
+
 export const setTypography = async (typography: ThemeOptions['typography'] | undefined) => {
   if (!typography) {
     return;
@@ -99,13 +107,25 @@ export const setTypography = async (typography: ThemeOptions['typography'] | und
     throw new Error('Function typography is not yet supported');
   }
 
-  // TODO Extract the font to load from the theme
-  await Promise.all([
-    figma.loadFontAsync({ family: typography.fontFamily || 'Roboto', style: 'Light' }),
-    figma.loadFontAsync({ family: typography.fontFamily || 'Roboto', style: 'Regular' }),
-    figma.loadFontAsync({ family: typography.fontFamily || 'Roboto', style: 'Medium' }),
-    figma.loadFontAsync({ family: typography.fontFamily || 'Roboto', style: 'Bold' }),
-  ]);
+  const fonts: FontName[] = [];
+
+  Object.entries(typography as any).forEach(([key, inputValue]: [string, FontStyle]) => {
+    if (TYPOGRAPHY.indexOf(key) === -1) {
+      return;
+    }
+
+    const font = { ...typography, ...inputValue };
+    const fontStyle = getFontStyle(font.fontWeight);
+    const fontFamily = font.fontFamily || 'Roboto';
+
+    const hasMatchingFont = fonts.some((el) => el.style === fontStyle && el.family === fontFamily);
+
+    if (!hasMatchingFont) {
+      fonts.push({ style: fontStyle, family: fontFamily });
+    }
+  });
+
+  await Promise.all(fonts.map((font) => figma.loadFontAsync(font)));
 
   const figmaStyles = figma.getLocalTextStyles();
 
@@ -122,11 +142,7 @@ export const setTypography = async (typography: ThemeOptions['typography'] | und
         if (font.fontFamily) {
           figmaStyle.fontName = {
             family: font.fontFamily,
-            style: font.fontWeight
-              ? (typeof font.fontWeight === 'number'
-                  ? WEIGHT_MAPPING[font.fontWeight]
-                  : font.fontWeight) || 'Regular'
-              : figmaStyle.fontName.style,
+            style: font.fontWeight ? getFontStyle(font.fontWeight) : figmaStyle.fontName.style,
           };
         }
 
