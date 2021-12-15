@@ -1,31 +1,21 @@
 import { Theme } from '@mui/material/styles';
-import { importPalette, exportPalette } from './palette';
-import { setTypography, getTypography } from './typography';
+import { importPalette } from './palette';
 
 figma.showUI(__html__);
 
 figma.ui.onmessage = async (msg) => {
   const { type, payload } = msg;
 
-  if (type === 'IMPORT_THEME') {
-    const theme = payload as Theme;
+  switch (type) {
+    case 'IMPORT_THEME':
+      const theme = payload as Theme;
 
-    importPalette(theme.palette);
+      importPalette(theme.palette);
 
-    const promises = [setTypography(theme.typography)];
+      figma.notify('✅ Your custom MUI theme was imported successfully.');
 
-    await Promise.all(promises);
-
-    figma.notify('✅ Your custom MUI theme was imported successfully.');
-  }
-
-  if (type === 'EXPORT_THEME') {
-    const theme = {
-      palette: exportPalette(),
-      typography: getTypography(),
-    };
-
-    figma.ui.postMessage({ id: 'MUI', value: theme });
+    default:
+      break;
   }
 
   figma.closePlugin();

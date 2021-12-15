@@ -1,37 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import CssBaseline from '@mui/material/CssBaseline';
-import Button from '@mui/material/Button';
-import Stack from '@mui/material/Stack';
-import { styled } from '@mui/material/styles';
-
-const Input = styled('input')`
-  display: none;
-`;
 
 const App = () => {
-  React.useEffect(() => {
-    const handleMessage = (event) => {
-      if (event?.data?.pluginMessage?.id === 'MUI') {
-        const { value } = event.data.pluginMessage;
-
-        const dataStr = JSON.stringify(value, null, 2);
-        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-
-        const exportFileDefaultName = 'data.json';
-
-        const linkElement = document.createElement('a');
-        linkElement.setAttribute('href', dataUri);
-        linkElement.setAttribute('download', exportFileDefaultName);
-        linkElement.click();
-      }
-    };
-    window.addEventListener('message', handleMessage);
-    return () => {
-      window.removeEventListener('message', handleMessage);
-    };
-  }, []);
-
   const inputRef = React.useRef<HTMLInputElement>();
 
   const handleUpload = () => {
@@ -55,22 +25,12 @@ const App = () => {
     reader.readAsBinaryString(files[0]);
   };
 
-  const handleExport = () => {
-    parent.postMessage({ pluginMessage: { type: 'EXPORT_THEME' } }, '*');
-  };
-
   return (
     <React.Fragment>
-      <CssBaseline />
-      <Input type="file" ref={inputRef} onChange={handleChange} accept=".json" />
-      <Stack m={2} spacing={2}>
-        <Button variant="contained" onClick={handleUpload}>
-          Upload theme
-        </Button>
-        <Button variant="contained" color="secondary" onClick={handleExport}>
-          Export theme
-        </Button>
-      </Stack>
+      <input type="file" ref={inputRef} onChange={handleChange} accept=".json" hidden />
+      <button type="button" onClick={handleUpload}>
+        Upload theme
+      </button>
     </React.Fragment>
   );
 };
