@@ -1,4 +1,3 @@
-import { Theme } from '@mui/material/styles';
 import { importPalette } from './palette';
 
 figma.showUI(__html__);
@@ -8,9 +7,7 @@ figma.ui.onmessage = async (msg) => {
 
   switch (type) {
     case 'IMPORT_THEME':
-      const theme = payload as Theme;
-
-      importPalette(theme.palette);
+      await importPalette(payload);
 
       figma.notify('✅ Your custom MUI theme was imported successfully.');
 

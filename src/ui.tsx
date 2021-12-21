@@ -3,27 +3,44 @@ import * as ReactDOM from 'react-dom';
 
 const App = () => {
   const inputRef = React.useRef<HTMLInputElement>();
+  const [fileProgress, setFileProgress] = React.useState(null);
 
   const handleUpload = () => {
     inputRef.current.click();
   };
 
-  const handleChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
-    const { files } = event.target;
+  const handleParseProgress = React.useCallback((ev: ProgressEvent) => {
+    if (ev.lengthComputable) {
+      setFileProgress(ev.total / ev.loaded);
+    }
+  }, []);
 
-    if (!files || files.length === 0) {
-      return;
+  const handleParseLoad = (ev: ProgressEvent<FileReader>): void => {
+    if (ev.total / ev.loaded) {
+      setFileProgress(null);
     }
 
-    const reader = new FileReader();
-    reader.onabort = () => console.log('file reading was aborted');
-    reader.onerror = () => console.log('file reading has failed');
-    reader.onload = () => {
-      const json = JSON.parse(reader.result as string);
-      parent.postMessage({ pluginMessage: { type: 'IMPORT_THEME', payload: json } }, '*');
-    };
-    reader.readAsBinaryString(files[0]);
+    const json = JSON.parse(ev.target.result as string);
+    parent.postMessage({ pluginMessage: { type: 'IMPORT_THEME', payload: json } }, '*');
   };
+
+  const handleChange: React.ChangeEventHandler<HTMLInputElement> = React.useCallback(
+    (event) => {
+      const { files } = event.target;
+
+      if (files.length === 0) {
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onabort = () => console.log('file reading was aborted');
+      reader.onerror = () => console.log('file reading has failed');
+      reader.onprogress = handleParseProgress;
+      reader.onload = handleParseLoad;
+      reader.readAsBinaryString(files[0]);
+    },
+    [handleParseProgress],
+  );
 
   return (
     <React.Fragment>
@@ -31,6 +48,13 @@ const App = () => {
       <button type="button" onClick={handleUpload}>
         Upload theme
       </button>
+      {fileProgress && (
+        <div>
+          <label htmlFor="upload-progress">Loading…</label>
+          <progress id="upload-progress" value={fileProgress}>{`${fileProgress * 100}%`}</progress>
+          <output>{`${fileProgress * 100}%`}</output>
+        </div>
+      )}
     </React.Fragment>
   );
 };

@@ -1,67 +1,52 @@
-import { decomposeColor, Theme, alpha, createTheme } from '@mui/material/styles';
-import { capitalize } from '@mui/material/utils';
-
-const PALETTES = ['primary', 'secondary', 'error', 'warning', 'info', 'success'];
-const SUPPORTED_KEYS = [...PALETTES, 'common', 'grey', 'text', 'divider', 'background', 'action'];
-
-const findOrCreatePaintStyle = (name: string) => {
-  const allStyles = figma.getLocalPaintStyles();
-  let style = allStyles.find((style) => style.name === name);
-  if (!style) {
-    style = figma.createPaintStyle();
-    style.name = name;
-  }
+const createNewStyle = (name: string) => {
+  const style = figma.createPaintStyle();
+  style.name = name;
   return style;
 };
 
-const createPaintStyleWithColor = (names: string[], color: string) => {
-  const style = findOrCreatePaintStyle(names.join('/'));
+const createPaintStyleWithColor = (
+  name: string,
+  color: Record<'red' | 'green' | 'blue' | 'alpha', number>,
+  existingStyle?: PaintStyle,
+) => {
+  const style = existingStyle || createNewStyle(name);
+
   if (!color) {
     return;
   }
   try {
-    const { values: colorRgb } = decomposeColor(color);
-    const [red, green, blue, opacity = 1] = colorRgb;
-    style.paints = [
-      { type: 'SOLID', color: { r: red / 255, g: green / 255, b: blue / 255 }, opacity },
-    ];
+    const { red: r, green: g, blue: b, alpha: opacity } = color;
+    style.paints = [{ type: 'SOLID', color: { r, g, b }, opacity }];
   } catch (error) {
     console.log('error', error);
   }
 };
 
-export const importPalette = (importedPalette: Theme['palette']) => {
-  const resolvedTheme = createTheme({ palette: importedPalette });
-  Object.entries(importedPalette).forEach(([name, value]) => {
-    if (SUPPORTED_KEYS.indexOf(name) !== -1) {
-      if (typeof value === 'string') {
-        // eg. divider
-        createPaintStyleWithColor([capitalize(name)], value);
-      } else {
-        Object.entries(value).forEach(([field, color]: [string, string | number]) => {
-          const colorName = field === 'contrastText' ? 'contrast' : field;
-          if (typeof color === 'string') {
-            createPaintStyleWithColor([capitalize(name), capitalize(colorName)], color);
-          }
-        });
+type Color = { name: string; value: Record<'red' | 'green' | 'blue' | 'alpha', number> };
 
-        if (PALETTES.indexOf(name) !== -1) {
-          createPaintStyleWithColor(
-            [capitalize(name), 'States', 'Outlined Resting Border'],
-            alpha(value.main, 0.5),
-          );
+function isColor(obj: Record<string, unknown>): obj is Color {
+  return !!obj.value && !!obj.name;
+}
 
-          createPaintStyleWithColor(
-            [capitalize(name), 'States', 'Contained Hover Background'],
-            value.dark,
-          );
-
-          createPaintStyleWithColor(
-            [capitalize(name), 'States', 'Outlined Hover Background'],
-            alpha(value.main, resolvedTheme.palette.action.hoverOpacity),
-          );
-        }
-      }
+function flattenObjectToArray(obj: Record<string, unknown>, acc = []): Color[] {
+  return Object.values(obj).reduce<Color[]>((subAcc: Color[], subObj: Record<string, unknown>) => {
+    if (isColor(subObj)) {
+      subAcc.push(subObj);
+    } else {
+      flattenObjectToArray(subObj, subAcc);
     }
-  });
-};
+    return subAcc;
+  }, acc);
+}
+
+export async function importPalette(importedPalette: Record<'color', Record<string, unknown>>) {
+  const res = flattenObjectToArray(importedPalette.color);
+  const allStyles = figma.getLocalPaintStyles();
+  const allStylesMap = new Map(allStyles.map((style) => [style.name, style]));
+
+  return await Promise.all(
+    res.map(async ({ name, value }) => {
+      return createPaintStyleWithColor(name, value, allStylesMap.get(name));
+    }),
+  );
+}
