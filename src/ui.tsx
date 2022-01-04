@@ -15,14 +15,14 @@ const App = () => {
     }
   }, []);
 
-  const handleParseLoad = (ev: ProgressEvent<FileReader>): void => {
+  const handleParseLoad = React.useCallback((ev: ProgressEvent<FileReader>) => {
     if (ev.total / ev.loaded) {
       setFileProgress(null);
     }
 
     const json = JSON.parse(ev.target.result as string);
     parent.postMessage({ pluginMessage: { type: 'IMPORT_THEME', payload: json } }, '*');
-  };
+  }, []);
 
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = React.useCallback(
     (event) => {
@@ -59,4 +59,4 @@ const App = () => {
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('mui-theme'));
+ReactDOM.render(<App />, document.getElementById('plugin-root'));
