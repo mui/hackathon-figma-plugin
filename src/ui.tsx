@@ -4,6 +4,8 @@ import * as ReactDOM from 'react-dom';
 const App = () => {
   const inputRef = React.useRef<HTMLInputElement>();
   const [fileProgress, setFileProgress] = React.useState(null);
+  const fileLoaderRef = React.useRef<FileReader>(null);
+  const submitEnabled = !fileProgress && fileLoaderRef.current?.result;
 
   const handleUpload = () => {
     inputRef.current.click();
@@ -16,12 +18,9 @@ const App = () => {
   }, []);
 
   const handleParseLoad = React.useCallback((ev: ProgressEvent<FileReader>) => {
-    if (ev.total / ev.loaded) {
+    if (ev.total / ev.loaded === 1) {
       setFileProgress(null);
     }
-
-    const json = JSON.parse(ev.target.result as string);
-    parent.postMessage({ pluginMessage: { type: 'IMPORT_THEME', payload: json } }, '*');
   }, []);
 
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = React.useCallback(
@@ -32,7 +31,8 @@ const App = () => {
         return;
       }
 
-      const reader = new FileReader();
+      fileLoaderRef.current = new FileReader();
+      const reader = fileLoaderRef.current;
       reader.onabort = () => console.log('file reading was aborted');
       reader.onerror = () => console.log('file reading has failed');
       reader.onprogress = handleParseProgress;
@@ -42,12 +42,39 @@ const App = () => {
     [handleParseProgress],
   );
 
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const json = JSON.parse(fileLoaderRef.current.result as string);
+
+    parent.postMessage({ pluginMessage: { type: 'IMPORT_THEME', payload: json } }, '*');
+  };
+
   return (
     <React.Fragment>
-      <input type="file" ref={inputRef} onChange={handleChange} accept=".json" hidden />
-      <button type="button" onClick={handleUpload}>
-        Upload theme
-      </button>
+      <form onSubmit={handleSubmit}>
+        <fieldset>
+          <legend>Theme Upload</legend>
+          <input
+            type="file"
+            ref={inputRef}
+            onChange={handleChange}
+            accept=".json"
+            id="jsonFile"
+            hidden
+          />
+          <div>
+            <button type="button" onClick={handleUpload}>
+              Upload theme
+            </button>
+          </div>
+          {fileLoaderRef.current?.result ? 'JSON loaded' : 'No JSON loaded'}
+        </fieldset>
+
+        <button type="submit" disabled={!submitEnabled}>
+          Import
+        </button>
+      </form>
       {fileProgress && (
         <div>
           <label htmlFor="upload-progress">Loading…</label>
