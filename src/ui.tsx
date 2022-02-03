@@ -82,7 +82,7 @@ const App = () => {
                 </label>
               </>
             ))}
-        </fieldset>
+          </fieldset>
         )}
 
         <button type="submit" disabled={!submitEnabled}>
