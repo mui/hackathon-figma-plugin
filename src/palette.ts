@@ -15,8 +15,8 @@ const createPaintStyleWithColor = (
     return;
   }
   try {
-    const { a: opacity, r,g,b } = color;
-    style.paints = [{ type: 'SOLID', color: {r,g,b}, opacity }];
+    const { a: opacity, r, g, b } = color;
+    style.paints = [{ type: 'SOLID', color: { r, g, b }, opacity }];
   } catch (error) {
     console.log('error', error);
   }

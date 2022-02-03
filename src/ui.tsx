@@ -3,24 +3,16 @@ import * as ReactDOM from 'react-dom';
 
 const App = () => {
   const inputRef = React.useRef<HTMLInputElement>();
-  const [fileProgress, setFileProgress] = React.useState(null);
+  const [jsonFile, setJsonFile] = React.useState(null);
   const fileLoaderRef = React.useRef<FileReader>(null);
-  const submitEnabled = !fileProgress && fileLoaderRef.current?.result;
+  const submitEnabled = fileLoaderRef.current?.result;
 
   const handleUpload = () => {
     inputRef.current.click();
   };
 
-  const handleParseProgress = React.useCallback((ev: ProgressEvent) => {
-    if (ev.lengthComputable) {
-      setFileProgress(ev.total / ev.loaded);
-    }
-  }, []);
-
   const handleParseLoad = React.useCallback((ev: ProgressEvent<FileReader>) => {
-    if (ev.total / ev.loaded === 1) {
-      setFileProgress(null);
-    }
+    setJsonFile(JSON.parse(fileLoaderRef.current.result as string));
   }, []);
 
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = React.useCallback(
@@ -35,11 +27,10 @@ const App = () => {
       const reader = fileLoaderRef.current;
       reader.onabort = () => console.log('file reading was aborted');
       reader.onerror = () => console.log('file reading has failed');
-      reader.onprogress = handleParseProgress;
       reader.onload = handleParseLoad;
       reader.readAsBinaryString(files[0]);
     },
-    [handleParseProgress],
+    [handleParseLoad],
   );
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -64,24 +55,40 @@ const App = () => {
             hidden
           />
           <div>
-            <button type="button" onClick={handleUpload}>
+            <p>Select a JSON to import tokens from.</p>
+            <button type="button" onClick={handleUpload} disabled={jsonFile}>
               Upload theme
             </button>
+            {jsonFile && '✅'}
           </div>
-          {fileLoaderRef.current?.result ? 'JSON loaded' : 'No JSON loaded'}
         </fieldset>
+
+        {jsonFile && (
+          <fieldset>
+            <legend>Categories</legend>
+            <p>Choose which categories to import:</p>
+            {Object.keys(jsonFile).map((item) => (
+              <>
+                <input
+                  key={item + '-input'}
+                  type="checkbox"
+                  value={item}
+                  id={item}
+                  checked={true}
+                  readOnly
+                />
+                <label key={item + '-label'} htmlFor={item}>
+                  {item}
+                </label>
+              </>
+            ))}
+        </fieldset>
+        )}
 
         <button type="submit" disabled={!submitEnabled}>
           Import
         </button>
       </form>
-      {fileProgress && (
-        <div>
-          <label htmlFor="upload-progress">Loading…</label>
-          <progress id="upload-progress" value={fileProgress}>{`${fileProgress * 100}%`}</progress>
-          <output>{`${fileProgress * 100}%`}</output>
-        </div>
-      )}
     </React.Fragment>
   );
 };
