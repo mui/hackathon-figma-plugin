@@ -17,6 +17,15 @@ figma.ui.onmessage = async (msg) => {
       } else {
         figma.notify('❌ Oops, something went wrong…');
       }
+      break;
+    case 'RESIZE':
+      const { height, width } = payload;
+      const { height: viewportHeight, width: viewportWidth } = figma.viewport.bounds;
+
+      figma.ui.resize(Math.min(width, viewportWidth), Math.min(height, viewportHeight));
+
+      return;
+    case 'CANCEL':
     default:
       break;
   }

@@ -1,0 +1,81 @@
+body {
+  padding: var(--size-xsmall);
+  /* Important for content mearsure on resize */
+  height: max-content;
+}
+
+/* Figma UI overwrites*/
+
+.button {
+  display: inline-flex;
+}
+
+.button:enabled {
+  cursor: pointer;
+}
+
+.section-title {
+  padding-inline-start: 0;
+}
+
+/* Custom Components */
+
+.form {
+    margin: 0
+}
+
+.fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.icon--inline {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.button-group {
+  display: flex;
+  gap: var(--size-xxsmall);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* Hyperlink styling */
+.link {
+  color: var(--blue);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.link:hover {
+  color: var(--blue);
+}
+
+.link:active {
+  color: var(--blue);
+}
+
+.link:focus {
+  text-decoration: underline;
+}
+
+.file-upload-status {
+  display: flex;
+  justify-content: space-between;
+}
+
+.type:not(:first-child),
+.form:not(:first-child),
+.fieldset:not(:first-child),
+.button-group:not(:first-child) {
+  margin-block-start: var(--size-xsmall);
+}
+
+.type:not(:last-child),
+.form:not(:last-child),
+.fieldset:not(:last-child),
+.button-group:not(:last-child) {
+  margin-block-end: var(--size-xsmall);
+}
