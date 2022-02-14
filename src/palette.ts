@@ -1,14 +1,12 @@
+import { Color, isColor } from './types';
+
 const createNewStyle = (name: string) => {
   const style = figma.createPaintStyle();
   style.name = name;
   return style;
 };
 
-const createPaintStyleWithColor = (
-  name: string,
-  color: Record<'r' | 'g' | 'b' | 'a', number>,
-  existingStyle?: PaintStyle,
-) => {
+const createPaintStyleWithColor = ({ name, color, comment }: Color, existingStyle?: PaintStyle) => {
   const style = existingStyle || createNewStyle(name);
 
   if (!color) {
@@ -17,16 +15,11 @@ const createPaintStyleWithColor = (
   try {
     const { a: opacity, r, g, b } = color;
     style.paints = [{ type: 'SOLID', color: { r, g, b }, opacity }];
+    style.description = comment || '';
   } catch (error) {
-    console.log('error', error);
+    console.error(error);
   }
 };
-
-type Color = { name: string; value: Record<'r' | 'g' | 'b' | 'a', number> };
-
-function isColor(obj: Record<string, unknown>): obj is Color {
-  return !!obj.value && !!obj.name;
-}
 
 function flattenObjectToArray(obj: Record<string, unknown>, acc = []): Color[] {
   return Object.values(obj).reduce<Color[]>((subAcc: Color[], subObj: Record<string, unknown>) => {
@@ -53,12 +46,14 @@ export async function importPalette(
   let updatedStylesCount = 0;
 
   return await Promise.all(
-    res.map(async ({ name, value }) => {
-      if (allStylesMap.get(name)) {
+    res.map(async (color) => {
+      const existingColor = allStylesMap.get(color.name);
+
+      if (existingColor) {
         updatedStylesCount++;
       }
 
-      return createPaintStyleWithColor(name, value, allStylesMap.get(name));
+      return createPaintStyleWithColor(color, existingColor);
     }),
   ).then(
     () => ({
