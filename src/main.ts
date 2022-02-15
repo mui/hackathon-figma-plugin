@@ -1,4 +1,4 @@
-import { importPalette } from './palette';
+import { importTokens, parsePayload } from './importTokens';
 
 figma.showUI(__html__);
 
@@ -7,7 +7,9 @@ figma.ui.onmessage = async (msg) => {
 
   switch (type) {
     case 'IMPORT_THEME':
-      const status = await importPalette(payload);
+      const tokens = parsePayload(payload);
+      const [status] = await importTokens(tokens, { categories: ['PAINT'] });
+
       if (status.success) {
         figma.notify(
           `✅ Successfully imported ${status.newStylesCount || 0} tokens. ${
