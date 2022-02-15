@@ -38,7 +38,7 @@ const importer: { [k in StyleType]: (tokens: DesignToken[]) => ImportPromise } =
       return importGridStyles(tokens);
     }
 
-    throw new Error("Tokens contain entries other than type color");
+    throw new Error("Tokens contain entries other than type grid");
   },
   TEXT: () =>
     Promise.resolve({

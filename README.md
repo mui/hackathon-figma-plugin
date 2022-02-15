@@ -1,25 +1,20 @@
 ## MVP
 
-### Required
-
-- [ ] able to import a [partial theme](https://mui.com/customization/default-theme/#main-content) (json) and change palette & typography.
-  - [ ] palette @siriwatknp
-  - [ ] typography @flaviendelangle
-- [ ] able to export colors & typography from figma into json file.
-- [ ] import auxiliary color groups (e.g. action, text, background).
-- [ ] add "Export" button in https://mui.com/customization/color/#playground
-
 ### Features
 
-- [ ] allow replace or override option when importing theme to figma @flaviendelangle
-- [ ] able to calculate runtime color like `primary: contained hover`
+- [x] able to import tokens from [Style Dictionary](https://amzn.github.io/style-dictionary) (json)
+  - [x] color styles
+  - [ ] grid styles
+  - [ ] font styles
 
-## Development
+### ToDo
+
+- [ ] Refactor input format to reduce transformation effort in plugin
+
+## Usage
 
 ### HMR (Hot module replacement)
-
-- `brew install modd`
-- run `chmod +x applescript.sh` in the root project dir
-- run `yarn dev`
-- open the plugin in Figma
-- try changing code in `src/ui.tsx`
+- run `npm i`
+- build the plugin `npm run build`
+- open the plugin in Figma by importing `manifest.json`
+- import tokens from JSON file
