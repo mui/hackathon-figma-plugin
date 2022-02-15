@@ -6,14 +6,14 @@ const createNewStyle = (name: string) => {
   return style;
 };
 
-const createPaintStyleWithColor = ({ name, color, comment }: Color, existingStyle?: PaintStyle) => {
+const createPaintStyleWithColor = ({ name, value, comment }: Color, existingStyle?: PaintStyle) => {
   const style = existingStyle || createNewStyle(name);
 
-  if (!color) {
+  if (!value) {
     return;
   }
   try {
-    const { a: opacity, r, g, b } = color;
+    const { a: opacity, r, g, b } = value;
     style.paints = [{ type: 'SOLID', color: { r, g, b }, opacity }];
     style.description = comment || '';
   } catch (error) {
